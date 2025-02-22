@@ -124,6 +124,7 @@ void frequency_button_loop() {
     #ifdef DEBUG
     Serial.println("\n\nFrequency Menu Button Pressed");
     #endif
+    r.setUpperBound(stepper_endstop_steps);
     settingFrequency = false;
     addMemory(stepper_programmed_steps, currentFrequency);
     refreshTuningScreen();

@@ -7,6 +7,7 @@ u_int16_t currentMemoryIndex = 0;
 u_int32_t currentFrequency = 0;
 u_int16_t memoryArraySize = 0;
 bool adjusting = false;
+bool automaticMemorySelection = false;
 u_int16_t adjustPosition = 0;
 
 void debugPrintMemoryArray() {
@@ -44,7 +45,7 @@ void updatePosition() {
     long value = r.getPosition();
     if (value != lastSavedValue) {
         #ifdef DEBUG
-            Serial.print("Saving encoder position: ");
+            Serial.print("Saving stepper position: ");
             Serial.println(value);
         #endif
         storeLong(STEPS_KEY, value);
@@ -60,6 +61,10 @@ void storeMemories() {
     #ifdef DEBUG
     debugPrintMemoryArray();
     #endif
+}
+
+bool retrieveBool(const char* key, bool defaultValue) {
+    return preferences.getBool(key, defaultValue);
 }
 
 int retrieveInt(const char* key, int defaultValue) {
@@ -91,33 +96,39 @@ void selectMemoryByFrequency(u_int32_t khz) {
     if (memoryArraySize == 0) {
         return;
     }
+
+    #ifdef DEBUG
+    Serial.println("\nselectMemoryByFrequency()");
+    #endif
+
+    // Find the memory with the exact frequency
     for (size_t i = 0; i < memoryArraySize; ++i) {
         if (memoryArray[i].khz == khz) {
-
-            if (memoryArray[i].steps > stepper_endstop_steps ||
-                memoryArray[i].steps < 0) {
+            if (memoryArray[i].steps > stepper_endstop_steps || memoryArray[i].steps < 0) {
                 #ifdef DEBUG
                 Serial.println("\nselectMemoryByFrequency()");
                 Serial.println("Invalid memory! (steps out of range)");
-                Serial.println("i: " + String(i));
-                Serial.println("memoryArray[i].steps:" + String(memoryArray[i].steps));
+                Serial.println("closestIndex: " + String(i));
+                Serial.println("memoryArray[closestIndex].steps:" + String(memoryArray[i].steps));
                 #endif
                 return;
             }
 
             currentMemoryIndex = i;
+            storeCurrentMemoryIndex(currentMemoryIndex);
+            previewMemoryIndex = currentMemoryIndex;
             stepper_programmed_steps = constrain(memoryArray[currentMemoryIndex].steps, 0, stepper_endstop_steps);
-            currentFrequency = memoryArray[currentMemoryIndex].khz;
+            //currentFrequency = memoryArray[currentMemoryIndex].khz;
+            currentFrequency = khz;
             #ifdef DEBUG
             Serial.println("New Memory Index: " + String(currentMemoryIndex));
-            Serial.println("New Frequency: " + String(memoryArray[currentMemoryIndex].khz));
+            Serial.println("New Frequency: " + String(currentFrequency));
             Serial.println("New Stepper Programmed Position: " + String(stepper_programmed_steps));
             #endif
             stepper_keep_enabled();
             stepper.moveTo(stepper_programmed_steps);
-            //stepper.runSpeedToPosition();
-            //r.resetPosition(stepper_programmed_steps);
-            printStepperPosition();
+            preferences.putInt(KHZ_KEY, currentFrequency);
+            refreshTuningScreen();
             return;
         }
     }
@@ -159,7 +170,13 @@ void selectMemoryByIndex(u_int16_t index) {
     storeCurrentMemoryIndex(currentMemoryIndex);
     previewMemoryIndex = currentMemoryIndex;
     stepper_programmed_steps = constrain(memoryArray[currentMemoryIndex].steps, 0, stepper_endstop_steps);
+    
     currentFrequency = memoryArray[currentMemoryIndex].khz;
+    
+    if (rigctldActive) {
+        setFrequencyByRigctld(currentFrequency);
+    }
+
     #ifdef DEBUG
     Serial.println("New Memory Index: " + String(currentMemoryIndex));
     Serial.println("New Frequency: " + String(memoryArray[currentMemoryIndex].khz));

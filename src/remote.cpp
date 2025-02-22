@@ -83,7 +83,13 @@ void handleStatusCommand() {
   json += String(currentMemoryIndex);
   json += ",\"capacity\":\"";
   json += String(calculatePF(stepper.currentPosition()), 2);
-  json += "\"}";
+  json += "\",\"endstopSteps\":";
+  json += String(stepper_endstop_steps);
+  json += ",\"rigctldActive\":";
+  json += rigctldActive ? "true" : "false";
+  json += ",\"automaticMemorySelection\":";
+  json += automaticMemorySelection ? "true" : "false";
+  json += "}";
   server.send(200, "application/json", json);
 }
 
@@ -114,6 +120,30 @@ void handleStepCommand() {
   } else {
     server.send(400, "application/json", "{\"status\":\"ERROR\",\"description\":\"Invalid step command\"}");
   }
+}
+
+void handleMemoryAutoCommand() {
+  bool command = server.pathArg(0) == "true";
+  setAutoMemorySelection(command);
+  String json = "{\"status\":\"OK\",\"automaticMemorySelection\":";
+  json += automaticMemorySelection ? "true" : "false";
+  json += "}";
+  server.send(200, "application/json", json);
+}
+
+void handleRigctldControlCommand() {
+  String command = server.pathArg(0);
+  if (command == "true") {
+    setRigctldActive(true);
+  } else if (command == "false") {
+    setRigctldActive(false);
+  } else {
+    server.send(400, "application/json", "{\"status\":\"ERROR\",\"description\":\"Invalid command\"}");
+  }
+  String json = "{\"status\":\"OK\",\"rigctldActive\":";
+  json += rigctldActive ? "true" : "false";
+  json += "}";
+  server.send(200, "application/json", json);
 }
 
 void setupWebServer() {
@@ -170,16 +200,13 @@ void setupWebServer() {
     });
 
     server.on(UriBraces("/adjust/{}"), handleAdjustCommand);
-
     server.on(UriBraces("/delete/{}"), handleDeleteCommand);
-    
     server.on(UriBraces("/save/{}/{}"), handleSaveCommand);
-
     server.on(UriBraces("/memories"), handleMemoryListCommand);
-
     server.on(UriBraces("/status"), handleStatusCommand);
-
     server.on(UriBraces("/step/{}/{}"), handleStepCommand);
+    server.on(UriBraces("/memory_auto/{}"), handleMemoryAutoCommand);
+    server.on(UriBraces("/rigctld_control/{}"), handleRigctldControlCommand);
 
     server.begin();
     #ifdef DEBUG

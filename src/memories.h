@@ -15,7 +15,8 @@
 #define KHZ_KEY "khz"
 #define ENDSTOP_KEY "endstop"
 #define MEMORY_MAX_SIZE 50
-
+#define AUTOMATIC_MEMORY_SELECTION_KEY "auto_mem"
+#define RIGCTLD_ACTIVE_KEY "rigctld_on"
 struct StepData {
     long steps;
     u_int32_t khz;
@@ -27,10 +28,13 @@ extern u_int16_t currentMemoryIndex;
 extern u_int32_t currentFrequency;
 extern u_int16_t memoryArraySize;
 extern u_int16_t previewMemoryIndex;
+extern bool automaticMemorySelection;
 extern bool adjusting;
 extern u_int16_t adjustPosition;
 
 void storeLong(const char* key, long value);
+
+bool retrieveBool(const char* key, bool defaultValue);
 
 int retrieveInt(const char* key, int defaultValue);
 
@@ -53,6 +57,8 @@ void memoryDown();
 void updateCurrentMemoryIndex(u_int16_t index);
 
 void selectMemoryByIndex(u_int16_t index);
+
+void selectMemoryByFrequency(u_int32_t khz);
 
 void debugPrintMemoryArray();
 

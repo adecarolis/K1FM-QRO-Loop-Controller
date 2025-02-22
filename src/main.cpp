@@ -44,7 +44,9 @@ void setup() {
    currentMemoryIndex = retrieveInt(CURRENT_MEMORY_INDEX_KEY, 0);
    previewMemoryIndex = currentMemoryIndex;
    currentFrequency = retrieveInt(KHZ_KEY, 0);
-   
+   automaticMemorySelection = retrieveBool(AUTOMATIC_MEMORY_SELECTION_KEY, false);
+   rigctldActive = retrieveBool(RIGCTLD_ACTIVE_KEY, false);
+
    #ifdef DEBUG
    Serial.print("Initial stepper position: ");
    Serial.println(initialPosition);
@@ -64,8 +66,11 @@ void setup() {
    #ifdef LOAD_MEMORIES
    addMemory(0, 4026);
    addMemory(14247, 10100);
-   addMemory(15786, 14000);
+   addMemory(15783, 14074);
+   addMemory(16437, 18100);
    addMemory(16757, 21000);
+   addMemory(16762, 21074);
+   addMemory(18345, 28074);
    addMemory(18435, 28500);
    addMemory(18746, 29000);
    #endif
@@ -76,13 +81,15 @@ void setup() {
    currentMemoryIndex = 2;
    previewMemoryIndex = currentMemoryIndex;
    currentFrequency = 5335;
-   initialPosition = 10000;
-   stepper_endstop_steps = 11000;
+   initialPosition = 6657;
+   stepper_endstop_steps = 22000;
 
    addMemory(0, 4026);
-   addMemory(6354, 5255);
-   addMemory(6657, 5335);
-   addMemory(22100, 32000);
+   addMemory(11039, 7074);
+   addMemory(15783, 14074);
+   addMemory(16437, 18100);
+   addMemory(16762, 21074);
+   addMemory(18345, 28074);
    #endif
 
    // Stepper Init
@@ -138,5 +145,6 @@ void loop() {
       stepper_loop(); // calls rotary_loop when/if necessary
       memory_loop();
       remote_loop();
+      automation_loop();
    }
 }

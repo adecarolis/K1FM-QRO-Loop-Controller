@@ -10,6 +10,7 @@
 #include <input/ButtonAdapter.h>
 #include <renderer/CharacterDisplayRenderer.h>
 #include <display/LiquidCrystal_I2CAdapter.h>
+#include <ItemToggle.h>
 #include "debug.h"
 #include "lcd.h"
 #include "rotary.h"
@@ -17,6 +18,7 @@
 #include "buttons.h"
 #include "rotary.h"
 #include "version.h"
+#include "automation.h"
 
 extern MenuScreen* mainScreen;
 
@@ -29,6 +31,8 @@ extern bool settingFrequency;
 extern bool settingEndstop;
 
 uint16_t adjustingSet();
+void setRigctldActive(bool isOn);
+void setAutoMemorySelection(bool isOn);
 void menu_loop();
 
 #endif

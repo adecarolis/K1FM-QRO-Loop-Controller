@@ -12,15 +12,9 @@ bool menuVisible = false;
 bool settingFrequency = false;
 bool settingEndstop = false;
 
-uint16_t adjustingSet() {
-  menuVisible = false;
-  menu.hide();
-  lcd.clear();
-  adjusting = true;
-  adjustPosition = stepper.currentPosition();
-  refreshTuningScreen();
-  return adjustPosition;
-}
+static const char* mem_methods[] = {"Manual", "Auto"};
+static const uint8_t MEM_METHODS_COUNT = sizeof(mem_methods) / sizeof(mem_methods)[0];
+
 
 MENU_SCREEN(settingsScreen, settingsItems,
   ITEM_COMMAND("Show IP Addr.", []() {
@@ -53,8 +47,36 @@ MENU_SCREEN(settingsScreen, settingsItems,
     r.resetPosition(stepper_endstop_steps);
     menu.hide();
     printEndstop();
-  }),  ITEM_BACK("Back"));
-
+  }),
+  ITEM_TOGGLE("RadioContr", [](bool isOn) { 
+    #ifdef DEBUG
+    Serial.print("Selected rigctldActive: ");
+    Serial.println(isOn);
+    #endif
+    setRigctldActive(isOn);
+  }),
+  ITEM_TOGGLE("AutoMemory", [](bool isOn) { 
+    #ifdef DEBUG
+    Serial.print("Selected rigctldActive: ");
+    Serial.println(isOn);
+    #endif
+    setAutoMemorySelection(isOn);
+  }),
+  // ITEM_WIDGET(
+  //   "Memory",
+  //   [](const uint8_t method) {
+  //     #ifdef DEBUG
+  //     Serial.print("Selected Memory Method: ");
+  //     Serial.println(mem_methods[method]);
+  //     #endif
+  //     if (method == 0) {
+  //       setAutoMemorySelection(false);
+  //     } else {
+  //       setAutoMemorySelection(true);
+  //     }
+  //   },
+  //   WIDGET_LIST(mem_methods, MEM_METHODS_COUNT, 0, "%s", 0, true)),
+  ITEM_BACK("Back"));
 
 MENU_SCREEN(mainScreen, mainItems,
     ITEM_COMMAND("Save Memory", []() {
@@ -63,6 +85,13 @@ MENU_SCREEN(mainScreen, mainItems,
       settingFrequency = true;
       menuVisible = false;
       menu.hide();
+      if (rigctldActive) {
+        u_int32_t frequency = getFrequencyByRigctld();
+        if (frequency != 0) {
+          currentFrequency = frequency;
+        }
+      }
+      r.setUpperBound(UINT16_MAX);
       printFrequency(currentFrequency);
     }),
     ITEM_COMMAND("Delete Memory", []() {
@@ -82,4 +111,46 @@ void menu_loop() {
     upButtonA.observe();
     downButtonA.observe();
     enterButtonA.observe();   
+}
+
+uint16_t adjustingSet() {
+  menuVisible = false;
+  menu.hide();
+  lcd.clear();
+  adjusting = true;
+  adjustPosition = stepper.currentPosition();
+  refreshTuningScreen();
+  return adjustPosition;
+}
+
+void setRigctldActive(bool isOn) {
+  rigctldActive = isOn;
+  preferences.putBool(RIGCTLD_ACTIVE_KEY, rigctldActive);
+  if (!rigctldActive) {
+    // there cannot be automatic memory selection unless
+    // the radio is being controlled
+    setAutoMemorySelection(false);
+  }
+
+  MenuItem* setRigctldMenuItem = settingsItems[4];
+  ItemToggle* setRigctldItemToggle = static_cast<ItemToggle*>(setRigctldMenuItem);
+  setRigctldItemToggle->setIsOn(isOn);
+  menu.refresh();
+
+}
+
+void setAutoMemorySelection(bool isOn) {
+  automaticMemorySelection = isOn;
+  preferences.putBool(AUTOMATIC_MEMORY_SELECTION_KEY, automaticMemorySelection);
+  if (automaticMemorySelection) {
+    // there cannot be automatic memory selection unless
+    // the radio is being controlled
+    setRigctldActive(true);
+  }
+
+  MenuItem* automaticMemoryMenuItem = settingsItems[5];
+  ItemToggle* automaticMemoryMenuItemItemToggle = static_cast<ItemToggle*>(automaticMemoryMenuItem);
+  automaticMemoryMenuItemItemToggle->setIsOn(isOn);
+  menu.refresh();
+
 }
