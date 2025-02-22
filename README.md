@@ -18,7 +18,7 @@ This controller enables the construction of a relatively inexpensive **Magnetic 
 
 ## Hardware  
 
-This project is inspired by [Jose's (EA7HVO) controller](https://www.instructables.com/Magnetic-Loop-Controller-for-4-Antennas), from which I borrowed the overall concept, enclosure, hardware UI, and numerous other insights.
+The project is inspired by [Jose's (EA7HVO) controller](https://www.instructables.com/Magnetic-Loop-Controller-for-4-Antennas), from which I borrowed the overall concept, enclosure, hardware UI, and numerous other insights.
 
 Jose’s project is **excellent and well-proven**. If remote operation is not a priority for you, I highly recommend checking out his work.
 
@@ -28,7 +28,7 @@ All components match EA7HVO’s project, except:
 
 2. The **Protoneer CNC Shield 3.0** is the same board used in EA7HVO's project, however in this one you **must remove the only resistor on the board (R1)** in order to make it work. You can either cut the resistor using scissors (it is through hole) or you can desolder it.
 
-3. Wire are connected in a different order:
+3. Wires are connected in a different order:
 
     | Pin Name      | ESP32 GPIO | Protoneer CNC 3.0 Board Pin |  
     |--------------|-----------|----------------------------|  
@@ -42,28 +42,37 @@ All components match EA7HVO’s project, except:
     | ENCODER_PIN1 | 16        | XDIR                        |  
     | ENCODER_PIN2 | 19        | SPINENABLE                  |  
 
-Apart from these modifications, everything else is the same. This ensures a **well-documented** build process while adding remote operation capabilities and improved memory management.  
+
+4. Unlike Jose's boards, in my case all connections to the CNC shield can be made using pins without the need to solder anything (the only soldered wires are on the Wemos board, for power supply).
+
+Apart from these modifications, everything else is the same. This ensures a **well-documented** build process while adding remote operation capabilities and improved memory management.
+
 
 ## Software  
 
-Unlike the hardware, **all software has been rewritten from scratch**.  
+ **Sofware has been rewritten from scratch**. Rotation is now handled by the AccelStepper
+library which allows faster speeds and controlled acceleration/deceleration of the stepper. The biggest additions are the **web interface**, the improved **memory management** and the **automation features**.
 
-The entire project can be **emulated online** using [Wokwi](https://wokwi.com/projects/423139990419467265). However, note that the **Web interface cannot be emulated** using the free Wokwi version. Below is a screenshot of the interface:  
+The entire project can be **emulated online** using [Wokwi](https://wokwi.com/projects/423139990419467265). However, note that the Web interface cannot be emulated when using the free Wokwi version. It also not possible to connect to an actual rigctld server.
+Below is a screenshot of the web interface:  
 
 ![Web Interface](https://github.com/adecarolis/k1fm-qro-loop-controller/raw/main/images/web-interface.png)
 
 ## Configuration
 
-In order to connect to the controller via the Web interface, you will need to modify [remote.html](https://github.com/adecarolis/k1fm-qro-loop-controller/blob/main/src/remote.html) file adding the SSID and password of your WiFi network.
+In order to connect to the controller via the Web interface, you will need to modify the [remote.h](https://github.com/adecarolis/k1fm-qro-loop-controller/blob/main/src/remote.h) file adding the SSID and password of your WiFi network.
+Automation features require the use of a rigctld server connected to your radio. You will need to add the IP address and port of your rigctld server in the [automation.h](https://github.com/adecarolis/k1fm-qro-loop-controller/blob/main/src/automation.h) file.
 
-You also need to set your capacitor's endstop setting, which you can find under Menu -> Settings -> Set Endstop.
+> [!CAUTION]
+> You must set your capacitor's endstop setting, which you can find under *Menu -> Settings -> Set Endstop*. This is very important since accidentally rotating the shaft past the endstop (or below the zero) could irreversibly damage a vacuum capacitor. In a system without endstop switching this is the main concern.
 
 Finally, capacitance is currently calculated for a **Comet CVBA-500BC** capacitor. You can modify the code to support other capacitors if you want to. I will try to parametrize this function in the future.
 
 ## Planned Improvements  
 
-- **automatic memory selection** and **automatic antenna tuning**
-- Wi-Fi Access point mode to allow configuring SSID and password without hard coding them
+- ~~automatic memory selection~~ DONE
+- automatic antenna tuning
+- OTA configuration management (wifi / rigctld)
 - Generalize capacitance calculation to support other capacitors
 
 ## Disclaimer  
