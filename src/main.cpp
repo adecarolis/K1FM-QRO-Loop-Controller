@@ -83,6 +83,7 @@ void setup() {
    currentFrequency = 5335;
    initialPosition = 6657;
    stepper_endstop_steps = 22000;
+   setRigctldActive(true);
 
    addMemory(0, 4026);
    addMemory(11039, 7074);
@@ -96,6 +97,7 @@ void setup() {
    stepper.setCurrentPosition(initialPosition);
    #ifndef EMULATOR
    stepper_endstop_steps = retrieveInt(ENDSTOP_KEY, 0);
+   setRigctldActive(false);
    #endif
    stepper.setMaxSpeed(2000.0);
    stepper.setAcceleration(500.0);

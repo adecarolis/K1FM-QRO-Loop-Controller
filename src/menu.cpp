@@ -79,6 +79,52 @@ MENU_SCREEN(settingsScreen, settingsItems,
   ITEM_BACK("Back"));
 
 MENU_SCREEN(mainScreen, mainItems,
+    ITEM_COMMAND("Measure SWR", []() {
+      if (!rigctldActive) {
+        menu.hide();
+        showMessage("RIG CONTROL", "NOT ACTIVE");
+        menu.show();
+        return;
+      }
+      menuVisible = false;
+      menu.hide();
+      lcd.setCursor(0,0);
+      lcd.print("MEASURING SWR");
+      float SWR = findMinimumSWRByRigctld(true);
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("DONE");
+      lcd.setCursor(0,1);
+      lcd.print("SWR: ");
+      lcd.print(String(SWR, 1));
+      delay(2000);
+      lcd.clear();
+      refreshTuningScreen();
+    }),
+    ITEM_COMMAND("Auto Tune", []() {
+
+      if (!rigctldActive) {
+        menu.hide();
+        showMessage("RIG CONTROL", "NOT ACTIVE");
+        menu.show();
+        return;
+      }
+
+      menuVisible = false;
+      menu.hide();
+      lcd.setCursor(0,0);
+      lcd.print("TUNING          ");
+      float SWR = findMinimumSWRByRigctld();
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("DONE TUNING    ");
+      lcd.setCursor(0,1);
+      lcd.print("SWR: ");
+      lcd.print(String(SWR, 1));
+      delay(2000);
+      lcd.clear();
+      refreshTuningScreen();
+    }),
     ITEM_COMMAND("Save Memory", []() {
       menuVisible = false;
       menu.hide();
@@ -108,9 +154,19 @@ MENU_SCREEN(mainScreen, mainItems,
     }));
 
 void menu_loop() {
+    static unsigned long lastMenuVisible = millis();
+
+    if (menuVisible && (millis() - lastMenuVisible > 60 * 2 * 1000)) {
+      menuVisible = false;
+      menu.hide();
+      refreshTuningScreen();
+      lastMenuVisible = millis();
+    }
+
     upButtonA.observe();
     downButtonA.observe();
-    enterButtonA.observe();   
+    enterButtonA.observe();
+
 }
 
 uint16_t adjustingSet() {
@@ -130,6 +186,7 @@ void setRigctldActive(bool isOn) {
     // there cannot be automatic memory selection unless
     // the radio is being controlled
     setAutoMemorySelection(false);
+    disconnectFromRigctld();
   }
 
   MenuItem* setRigctldMenuItem = settingsItems[4];

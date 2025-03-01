@@ -146,6 +146,19 @@ void handleRigctldControlCommand() {
   server.send(200, "application/json", json);
 }
 
+void handleTuningCommand() {
+  if (!rigctldActive) {
+    server.send(400, "application/json", "{\"status\":\"ERROR\",\"description\":\"RIG control not active\"}");
+    return;
+  }
+  bool measureOnly = server.pathArg(0) == "swr";
+  float SWR = findMinimumSWRByRigctld(measureOnly);
+  String json = "{\"status\":\"OK\",\"SWR\":";
+  json += String(SWR, 1);
+  json += "}";
+  server.send(200, "application/json", json);
+}
+
 void setupWebServer() {
   #ifdef EMULATOR
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD, WIFI_CHANNEL);
@@ -202,6 +215,7 @@ void setupWebServer() {
     server.on(UriBraces("/adjust/{}"), handleAdjustCommand);
     server.on(UriBraces("/delete/{}"), handleDeleteCommand);
     server.on(UriBraces("/save/{}/{}"), handleSaveCommand);
+    server.on(UriBraces("/tune/{}"), handleTuningCommand);
     server.on(UriBraces("/memories"), handleMemoryListCommand);
     server.on(UriBraces("/status"), handleStatusCommand);
     server.on(UriBraces("/step/{}/{}"), handleStepCommand);

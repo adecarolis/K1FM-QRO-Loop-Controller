@@ -10,52 +10,50 @@ const char* htmlContent = R"rawliteral(
           font-family: 'Segoe UI', Arial, sans-serif;
           margin: 0;
           padding: 20px;
-          background: #2e2e2e; /* Dark gray background */
-          color: #e0e0e0; /* Light text for contrast */
+          background: #2e2e2e;
+          color: #e0e0e0;
           display: flex;
           justify-content: center;
           min-height: 100vh;
         }
         .container {
           width: 100%;
-          max-width: 700px; /* Slightly wider for better spacing */
+          max-width: 700px;
           display: flex;
           flex-direction: column;
-          gap: 20px; /* Consistent spacing between sections */
+          gap: 20px;
         }
         h1 {
           font-size: 1.8em;
-          color: #00cc00; /* Bright green for title, radio-style */
+          color: #00cc00;
           text-align: center;
           margin: 0 0 10px 0;
           text-shadow: 0 0 5px rgba(0, 204, 0, 0.5);
         }
         .section {
-          background: #3a3a3a; /* Slightly lighter dark gray */
+          background: #3a3a3a;
           padding: 15px;
           border-radius: 10px;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
           border: 1px solid #555;
         }
-        /* Status Section */
         .status {
           display: grid;
-          grid-template-columns: 1fr 1fr; /* Two-column layout */
+          grid-template-columns: 1fr 1fr;
           gap: 10px;
           font-size: 1.1em;
           text-align: left;
         }
         .status span {
-          color: #00cc00; /* Green for values */
+          color: #00cc00;
           font-weight: bold;
         }
         .status .italic {
           font-style: italic;
-          color: #ff9900; /* Orange for adjusted values */
+          color: #ff9900;
         }
-        /* Button Styles */
         .btn {
-          background: #4CAF50; /* Default green */
+          background: #4CAF50;
           border: none;
           color: white;
           padding: 12px 20px;
@@ -67,41 +65,39 @@ const char* htmlContent = R"rawliteral(
           text-align: center;
         }
         .btn:hover {
-          background: #66bb6a; /* Lighter green on hover */
+          background: #66bb6a;
         }
         .btn:active {
-          background: #d32f2f !important; /* Red when clicked */
-          transform: scale(0.95); /* Slight press effect */
+          background: #d32f2f !important;
+          transform: scale(0.95);
         }
         .btn.selected {
-          background: #e53935 !important; /* Red for selected (Auto mode) */
+          background: #e53935 !important;
         }
         .btn.disabled {
           opacity: 0.5;
           pointer-events: none;
         }
-        /* Step Control */
         .step-control {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); /* Adaptive columns */
+          grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
           gap: 10px;
         }
         .step-control .btn {
           width: 100%;
-          background: #388e3c; /* Darker green for increase */
-          padding: 8px 10px; /* Reduced padding for smaller screens */
-          font-size: 1em; /* Slightly smaller font */
+          background: #388e3c;
+          padding: 8px 10px;
+          font-size: 1em;
         }
         .step-control .btn.decrease {
-          background: #c62828; /* Red for decrease */
+          background: #c62828;
         }
-        @media (max-width: 400px) { /* Fine-tune for very narrow screens */
+        @media (max-width: 400px) {
           .step-control .btn {
             padding: 6px 8px;
             font-size: 0.9em;
           }
         }
-        /* Mode Control */
         .mode-control {
           display: flex;
           justify-content: space-between;
@@ -112,7 +108,16 @@ const char* htmlContent = R"rawliteral(
           padding: 10px;
           font-size: 1em;
         }
-        /* Memory Management */
+        .tuning-control {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+        }
+        .tuning-control .btn {
+          flex: 1;
+          padding: 10px;
+          font-size: 1em;
+        }
         .memory-management {
           display: flex;
           justify-content: space-between;
@@ -126,30 +131,39 @@ const char* htmlContent = R"rawliteral(
           font-size: 1em;
         }
         .adjust-button {
-          background: #0288d1; /* Blue for adjust */
+          background: #0288d1;
         }
         .adjust-button.selected {
-          background: #e53935 !important; /* Red when active */
+          background: #e53935 !important;
+        }
+        .tune-button {
+          background: #ff9800;
+          min-width: 120px;
+        }
+        .tune-button.tuning {
+          background: #ffa726;
+        }
+        .tune-button:hover {
+          background: #ffb300;
         }
         .sort-button {
-          background: #757575; /* Gray for sort */
-          min-width: 60px !important; /* Smaller sort button */
+          background: #757575;
+          min-width: 60px !important;
         }
         .save-button {
-          background: #4CAF50; /* Green for save */
+          background: #4CAF50;
         }
         .delete-button {
-          background: #d32f2f; /* Red for delete */
+          background: #d32f2f;
         }
-        /* Memory Selection */
         .memory-select .band-label {
           font-weight: bold;
           margin: 15px 0 5px 0;
-          color: #00cc00; /* Green for band labels */
+          color: #00cc00;
           text-align: left;
         }
         .memory-select .out-of-band-label {
-          color: #ff9900; /* Orange for out-of-band */
+          color: #ff9900;
         }
         .memory-select .button-container {
           display: grid;
@@ -158,19 +172,19 @@ const char* htmlContent = R"rawliteral(
         }
         .memory-select .btn {
           width: 100%;
-          background: #555; /* Neutral gray for memory buttons */
+          background: #555;
         }
         .memory-select .btn.selected {
-          background: #e53935 !important; /* Red for selected memory */
+          background: #e53935 !important;
         }
       </style>
       <script>
-        // [Your original JavaScript remains unchanged]
         let sortAscending = true;
         let adjustMode = false;
         let originalSteps = 0;
         let adjustedSteps = 0;
-  
+        let currentSWR = ""; // Store current SWR value
+
         function toggleRadioControl() {
           const radioControlButton = document.getElementById("radioControlButton");
           const isAuto = radioControlButton.textContent.includes("Auto");
@@ -181,12 +195,25 @@ const char* htmlContent = R"rawliteral(
           xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
               refreshStatus();
+              updateTuningButtons(!isAuto); // Update button states based on Auto mode
             }
           };
           xhttp.open("GET", "/rigctld_control/" + !isAuto, true);
           xhttp.send();
         }
-  
+
+        function updateTuningButtons(isAuto) {
+          const tuneButton = document.getElementById("tuneButton");
+          const swrButton = document.getElementById("swrButton");
+          if (isAuto) {
+            tuneButton.classList.remove("disabled");
+            swrButton.classList.remove("disabled");
+          } else {
+            tuneButton.classList.add("disabled");
+            swrButton.classList.add("disabled");
+          }
+        }
+
         function toggleMemoryControl() {
           const memoryControlButton = document.getElementById("memoryControlButton");
           const isAuto = memoryControlButton.textContent.includes("Auto");
@@ -202,7 +229,7 @@ const char* htmlContent = R"rawliteral(
           xhttp.open("GET", "/memory_auto/" + !isAuto, true);
           xhttp.send();
         }
-  
+
         function toggleAdjust() {
           if (adjustMode) {
             var xhttp = new XMLHttpRequest();
@@ -238,7 +265,7 @@ const char* htmlContent = R"rawliteral(
             xhttp.send();
           }
         }
-  
+
         function enableMemoryButtons(enable) {
           var buttons = document.querySelectorAll(".memory-select .btn");
           buttons.forEach(button => {
@@ -249,7 +276,7 @@ const char* htmlContent = R"rawliteral(
             }
           });
         }
-  
+
         function sendStepCommand(command, step) {
           var xhttp = new XMLHttpRequest();
           xhttp.onreadystatechange = function() {
@@ -258,6 +285,8 @@ const char* htmlContent = R"rawliteral(
               var stepElement = document.getElementById("currentSteps");
               stepElement.textContent = json.currentSteps;
               stepElement.classList.add("italic");
+              currentSWR = ""; // Clear SWR on manual step change
+              document.getElementById("swrValue").textContent = "";
               if (adjustMode) {
                 document.getElementById("adjustValue").textContent = ` (${originalSteps - json.currentSteps})`;
               }
@@ -267,7 +296,7 @@ const char* htmlContent = R"rawliteral(
           xhttp.open("GET", "/step/" + command + "/" + step, true);
           xhttp.send();
         }
-  
+
         function selectMemory(index, khz, steps) {
           var buttons = document.querySelectorAll(".memory-select .btn");
           buttons.forEach(button => {
@@ -283,6 +312,8 @@ const char* htmlContent = R"rawliteral(
           var stepElement = document.getElementById("currentSteps");
           stepElement.textContent = steps;
           stepElement.classList.add("italic");
+          currentSWR = ""; // Clear SWR on memory selection
+          document.getElementById("swrValue").textContent = "";
           var xhttp = new XMLHttpRequest();
           xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -292,16 +323,26 @@ const char* htmlContent = R"rawliteral(
           xhttp.open("GET", "/select/" + index, true);
           xhttp.send();
         }
-  
+
         function refreshStatus() {
           var xhttp = new XMLHttpRequest();
           xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
               var json = JSON.parse(this.responseText);
               var stepElement = document.getElementById("currentSteps");
+              var freqElement = document.getElementById("currentFrequency");
+              var swrElement = document.getElementById("swrValue");
+
+              // Only clear SWR if frequency changes and no SWR is set
+              if (freqElement.textContent !== json.currentFrequency && !currentSWR) {
+                swrElement.textContent = "";
+              } else {
+                swrElement.textContent = currentSWR; // Preserve current SWR
+              }
+              
               stepElement.textContent = json.currentSteps;
               stepElement.classList.remove("italic");
-              document.getElementById("currentFrequency").textContent = json.currentFrequency;
+              freqElement.textContent = json.currentFrequency;
               document.getElementById("currentCapacity").textContent = json.capacity;
               const radioControlButton = document.getElementById("radioControlButton");
               radioControlButton.textContent = `Radio Control [${json.rigctldActive ? "Auto" : "Manual"}]`;
@@ -310,12 +351,13 @@ const char* htmlContent = R"rawliteral(
               memoryControlButton.textContent = `Memory [${json.automaticMemorySelection ? "Auto" : "Manual"}]`;
               memoryControlButton.classList.toggle("selected", json.automaticMemorySelection);
               updateMemoryHighlight(json.currentSteps);
+              updateTuningButtons(json.rigctldActive); // Update Tune/SWR button states
             }
           };
           xhttp.open("GET", "/status", true);
           xhttp.send();
         }
-  
+
         function updateMemoryHighlight(currentSteps) {
           var buttons = document.querySelectorAll(".memory-select .btn");
           buttons.forEach(button => {
@@ -327,7 +369,7 @@ const char* htmlContent = R"rawliteral(
             }
           });
         }
-  
+
         function loadMemories() {
           var xhttp = new XMLHttpRequest();
           xhttp.onreadystatechange = function() {
@@ -339,18 +381,18 @@ const char* htmlContent = R"rawliteral(
           xhttp.open("GET", "/memories", true);
           xhttp.send();
         }
-  
+
         function toggleSortOrder() {
           sortAscending = !sortAscending;
           loadMemories();
           updateSortButtonText();
         }
-  
+
         function updateSortButtonText() {
           const sortButton = document.getElementById("sortButton");
           sortButton.textContent = sortAscending ? "↑" : "↓";
         }
-  
+
         function saveMemory() {
           const currentFrequency = document.getElementById("currentFrequency").textContent;
           const currentSteps = document.getElementById("currentSteps").textContent;
@@ -370,7 +412,7 @@ const char* htmlContent = R"rawliteral(
           xhttp.open("GET", "/save/" + frequency + "/" + steps, true);
           xhttp.send();
         }
-  
+
         function deleteMemory() {
           var xhttp = new XMLHttpRequest();
           xhttp.onreadystatechange = function() {
@@ -401,7 +443,87 @@ const char* htmlContent = R"rawliteral(
           xhttp.open("GET", "/memories", true);
           xhttp.send();
         }
-  
+
+        function tuneAntenna() {
+          const tuneButton = document.getElementById("tuneButton");
+          tuneButton.textContent = "Tuning...";
+          tuneButton.classList.add("tuning");
+          tuneButton.disabled = true;
+          
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              const response = JSON.parse(this.responseText);
+              tuneButton.classList.remove("tuning");
+              tuneButton.disabled = false;
+              tuneButton.textContent = "Tune";
+              
+              if (response.status === "OK") {
+                currentSWR = response.SWR;
+                var statusXhttp = new XMLHttpRequest();
+                statusXhttp.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                    var statusJson = JSON.parse(this.responseText);
+                    document.getElementById("currentSteps").textContent = statusJson.currentSteps;
+                    document.getElementById("currentFrequency").textContent = statusJson.currentFrequency;
+                    document.getElementById("currentCapacity").textContent = statusJson.capacity;
+                    document.getElementById("swrValue").textContent = currentSWR;
+                    updateMemoryHighlight(statusJson.currentSteps);
+                  }
+                };
+                statusXhttp.open("GET", "/status", true);
+                statusXhttp.send();
+              } else {
+                currentSWR = response.description;
+                document.getElementById("swrValue").textContent = currentSWR;
+                refreshStatus();
+              }
+            }
+          };
+          xhttp.open("GET", "/tune/", true);
+          xhttp.send();
+        }
+
+        function measureSWR() {
+          const swrButton = document.getElementById("swrButton");
+          swrButton.textContent = "Measuring...";
+          swrButton.classList.add("tuning");
+          swrButton.disabled = true;
+          
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              const response = JSON.parse(this.responseText);
+              swrButton.classList.remove("tuning");
+              swrButton.disabled = false;
+              swrButton.textContent = "SWR";
+              
+              if (response.status === "OK") {
+                currentSWR = response.SWR;
+                var statusXhttp = new XMLHttpRequest();
+                statusXhttp.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                    var statusJson = JSON.parse(this.responseText);
+                    document.getElementById("currentSteps").textContent = statusJson.currentSteps;
+                    document.getElementById("currentFrequency").textContent = statusJson.currentFrequency;
+                    document.getElementById("currentCapacity").textContent = statusJson.capacity;
+                    document.getElementById("swrValue").textContent = currentSWR;
+                    updateMemoryHighlight(statusJson.currentSteps);
+                  }
+                };
+                statusXhttp.open("GET", "/status", true);
+                statusXhttp.send();
+              } else {
+                currentSWR = response.description;
+                document.getElementById("swrValue").textContent = currentSWR;
+                refreshStatus();
+              }
+            }
+          };
+          xhttp.open("GET", "/tune/swr", true);
+          xhttp.send();
+        }
+
         function renderMemoryButtons(memories) {
           var memoryContainer = document.getElementById("memoryContainer");
           memoryContainer.innerHTML = "";
@@ -485,28 +607,35 @@ const char* htmlContent = R"rawliteral(
             });
           }
         }
-  
+
         setInterval(refreshStatus, 5000);
       </script>
     </head>
-  
+
     <body onload="refreshStatus(); loadMemories(); updateSortButtonText();">
       <div class="container">
         <h1>K1FM QRO Loop Controller</h1>
-  
+
         <!-- Status Display -->
         <div class="section status">
           <div>Steps: <span id="currentSteps"></span><span id="adjustValue"></span></div>
           <div>Frequency: <span id="currentFrequency"></span> kHz</div>
           <div>Capacity: <span id="currentCapacity"></span> pF</div>
+          <div>SWR: <span id="swrValue"></span></div>
         </div>
-  
+
         <!-- Mode Control -->
         <div class="section mode-control">
           <button id="radioControlButton" class="btn" onclick="toggleRadioControl()">Radio Control [Auto]</button>
           <button id="memoryControlButton" class="btn" onclick="toggleMemoryControl()">Memory [Auto]</button>
         </div>
-  
+
+        <!-- Tuning Control -->
+        <div class="section tuning-control">
+          <button id="tuneButton" class="btn tune-button" onclick="tuneAntenna()">Tune</button>
+          <button id="swrButton" class="btn tune-button" onclick="measureSWR()">SWR</button>
+        </div>
+
         <!-- Manual Tuning -->
         <div class="section step-control">
           <button class="btn decrease" onclick="sendStepCommand('decrease', 100)">-100</button>
@@ -518,7 +647,7 @@ const char* htmlContent = R"rawliteral(
           <button class="btn" onclick="sendStepCommand('increase', 10)">+10</button>
           <button class="btn" onclick="sendStepCommand('increase', 100)">+100</button>
         </div>
-  
+
         <!-- Memory Management -->
         <div class="section memory-management">
           <button id="adjustButton" class="btn adjust-button" onclick="toggleAdjust()">Adjust</button>
@@ -526,7 +655,7 @@ const char* htmlContent = R"rawliteral(
           <button class="btn save-button" onclick="saveMemory()">Save Memory</button>
           <button class="btn delete-button" onclick="deleteMemory()">Delete Memory</button>
         </div>
-  
+
         <!-- Memory Selection -->
         <div class="section memory-select" id="memoryContainer">
           <!-- Memory buttons dynamically inserted here -->
