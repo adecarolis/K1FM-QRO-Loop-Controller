@@ -1,9 +1,10 @@
-const char* htmlContent = R"rawliteral(
+const char* htmlTemplate = R"rawliteral(
   <!DOCTYPE html>
   <html lang="en">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="format-detection" content="telephone=no">
       <title>K1FM QRO Loop Controller</title>
       <style>
         body {
@@ -13,7 +14,8 @@ const char* htmlContent = R"rawliteral(
           background: #2e2e2e;
           color: #e0e0e0;
           display: flex;
-          justify-content: center;
+          flex-direction: column;
+          justify-content: flex-start; /* Align content to the top */
           min-height: 100vh;
         }
         .container {
@@ -22,6 +24,8 @@ const char* htmlContent = R"rawliteral(
           display: flex;
           flex-direction: column;
           gap: 20px;
+          margin: auto;
+          margin-bottom: 0; /* Remove extra bottom margin */
         }
         h1 {
           font-size: 1.8em;
@@ -29,6 +33,26 @@ const char* htmlContent = R"rawliteral(
           text-align: center;
           margin: 0 0 10px 0;
           text-shadow: 0 0 5px rgba(0, 204, 0, 0.5);
+        }
+        footer {
+          text-align: center;
+          font-size: 0.9em;
+          color: #888;
+          margin-top: 10px; /* Reduce margin for better alignment */
+        }
+        footer span {
+          color: #00cc00;
+        }
+        footer a {
+          display: inline-block; /* Change to inline-block for alignment */
+          margin-top: 5px;
+          font-size: 0.8em;
+          color: #ff5555;
+          text-decoration: none;
+          margin-right: 10px; /* Add spacing between links */
+        }
+        footer a:hover {
+          text-decoration: underline;
         }
         .section {
           background: #3a3a3a;
@@ -219,6 +243,15 @@ const char* htmlContent = R"rawliteral(
           display: flex;
           justify-content: space-between;
           margin-top: 20px;
+        }
+        .emulator-warning {
+          background: #ffcc00;
+          color: #000;
+          padding: 10px;
+          border-radius: 5px;
+          text-align: center;
+          font-weight: bold;
+          margin-bottom: 20px;
         }
       </style>
       <script>
@@ -698,12 +731,68 @@ const char* htmlContent = R"rawliteral(
           }
         }
 
+        function disconnectWifi() {
+          if (confirm("Are you sure you want to disconnect from WiFi?")) {
+            window.location.href = "/disconnect_wifi";
+          }
+        }
+
+        function updateModeButtons(apMode) {
+          const radioControlButton = document.getElementById("radioControlButton");
+          const memoryControlButton = document.getElementById("memoryControlButton");
+          if (apMode) {
+            radioControlButton.classList.add("disabled");
+            memoryControlButton.classList.add("disabled");
+          } else {
+            radioControlButton.classList.remove("disabled");
+            memoryControlButton.classList.remove("disabled");
+          }
+        }
+
+        function openendstopModal() {
+          const xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+              const currentendstop = this.responseText;
+              document.getElementById("endstopInput1").value = currentendstop;
+              document.getElementById("endstopInput2").value = currentendstop;
+              document.getElementById("endstopModal").style.display = "block";
+            }
+          };
+          xhttp.open("GET", "/get_endstop", true);
+          xhttp.send();
+        }
+
+        function updateendstop() {
+          const input1 = document.getElementById("endstopInput1").value;
+          const input2 = document.getElementById("endstopInput2").value;
+
+          if (input1 !== input2) {
+            alert("The entered values do not match. Please try again.");
+            return;
+          }
+
+          const xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+              alert("endstop updated successfully!");
+              document.getElementById("endstopModal").style.display = "none";
+            }
+          };
+          xhttp.open("POST", "/update_endstop", true);
+          xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+          xhttp.send("endstop=" + encodeURIComponent(input1));
+        }
+
         setInterval(refreshStatus, 5000);
       </script>
     </head>
 
-    <body onload="refreshStatus(); loadMemories(); updateSortButtonText();">
+    <body onload="refreshStatus(); loadMemories(); updateSortButtonText(); updateModeButtons({{AP_MODE}});">
       <div class="container">
+        <!-- Emulator Warning -->
+        {{EMULATOR_WARNING}}
+
         <h1>K1FM QRO Loop Controller</h1>
 
         <!-- Status Display -->
@@ -750,6 +839,10 @@ const char* htmlContent = R"rawliteral(
         <div class="section memory-select" id="memoryContainer">
           <!-- Memory buttons dynamically inserted here -->
         </div>
+
+        <!-- AP Mode Setup Section -->
+        {{AP_MODE_SETUP}}
+
       </div>
       <div id="modal" class="modal">
         <div class="modal-content">
@@ -759,6 +852,29 @@ const char* htmlContent = R"rawliteral(
           <div id="modalButtons" class="modal-buttons"></div>
         </div>
       </div>
+      <div id="endstopModal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="document.getElementById('endstopModal').style.display='none'">&times;</span>
+          <div class="modal-title">Set Endstop</div>
+          <div>
+            <label for="endstopInput1">Enter New endstop:</label>
+            <input type="text" id="endstopInput1" />
+          </div>
+          <div>
+            <label for="endstopInput2">Confirm New endstop:</label>
+            <input type="text" id="endstopInput2" />
+          </div>
+          <div class="modal-buttons">
+            <button class="btn" onclick="updateendstop()">UPDATE</button>
+            <button class="btn" onclick="document.getElementById('endstopModal').style.display='none'">CANCEL</button>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <p>Version: <span>{{VERSION}}</span></p>
+        {{DISCONNECT_LINK}}
+        <a href="javascript:openendstopModal()">Set Endstop</a>
+      </footer>
     </body>
   </html>
 )rawliteral";

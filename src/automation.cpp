@@ -3,13 +3,29 @@
 
 bool rigctldActive;
 
-// Replace with your rigctld server IP
-const char* rigctl_host = "192.168.67.103";
-const uint16_t rigctl_port = 4532;
+String rigctl_host;
+uint16_t rigctl_port;
 
 WiFiClient rigClient;
 
 unsigned long lastUpdate = 0;
+
+void setupAutomation() {
+    #ifdef DEBUG
+    Serial.println("Initializing automation...");
+    #endif
+
+    preferences.begin("wifi", true); // Ensure Preferences is initialized
+    rigctl_host = preferences.getString(RIGCTLD_HOST_KEY, "");
+    rigctl_port = preferences.getUInt(RIGCTLD_PORT_KEY, 4532);
+
+    #ifdef DEBUG
+    Serial.print("Loaded rigctl_host: ");
+    Serial.println(rigctl_host);
+    Serial.print("Loaded rigctl_port: ");
+    Serial.println(rigctl_port);
+    #endif
+}
 
 void automation_loop() {
     unsigned long currentTime = millis();
@@ -66,11 +82,13 @@ bool connectToRigctld() {
     #endif
 
     while (!rigClient.connected() && rigctldConnectionAttempts < 5) {
-        if (!rigClient.connect(rigctl_host, rigctl_port, 2000)) {
+        if (!rigClient.connect(rigctl_host.c_str(), rigctl_port, 2000)) {
             rigctldConnectionAttempts++;
             #ifdef DEBUG
             Serial.print("Connection to rigctld failed! Attempt: ");
             Serial.println(rigctldConnectionAttempts);
+            Serial.println("rigctl_host: " + rigctl_host);
+            Serial.println("rigctl_port: " + String(rigctl_port));
             #endif
         } else {
             rigctldConnectionAttempts = 0;

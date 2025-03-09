@@ -6,6 +6,10 @@
 #include "menu.h"
 #include "remote.h"
 #include "debug.h"
+#include <Preferences.h>
+
+// Define the preferences object here
+Preferences preferences;
 
 #define SERIAL_SPEED 115200
 
@@ -83,7 +87,6 @@ void setup() {
    currentFrequency = 5335;
    initialPosition = 6657;
    stepper_endstop_steps = 22000;
-   setRigctldActive(true);
 
    addMemory(0, 4026);
    addMemory(11039, 7074);

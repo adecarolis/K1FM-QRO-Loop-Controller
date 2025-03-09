@@ -3,11 +3,13 @@
 
 #include <WiFiClient.h>
 #include "memories.h"
+#include <Preferences.h>
 
 u_int32_t getFrequencyByRigctld();
 bool setFrequencyByRigctld(uint32_t frequency);
 
 extern bool rigctldActive;
+extern Preferences preferences;
 
 bool connectToRigctld();
 void disconnectFromRigctld();
@@ -21,4 +23,6 @@ float getPowerByRigctld();
 void automation_loop();
 float transmitAndReturnSWRByRigctld();
 float findMinimumSWRByRigctld(bool measureOnly = false);
+void setupAutomation();
+
 #endif

@@ -15,6 +15,12 @@ This controller enables the construction of a relatively inexpensive **Magnetic 
 - **Enhanced memory management:**  
   - Large number of memory slots  
   - Automatically sorted  
+- **Automation features:**  
+  - Automatic memory selection  
+  - Automatic antenna tuning  
+- **Dynamic configuration:**  
+  - Set endstop dynamically via the web interface  
+  - Configure WiFi and rigctld settings without modifying the source code  
 
 ## Hardware  
 
@@ -50,8 +56,8 @@ Apart from these modifications, everything else is the same. This ensures a **we
 
 ## Software  
 
- **Sofware has been rewritten from scratch**. Rotation is now handled by the AccelStepper
-library which allows faster speeds and controlled acceleration/deceleration of the stepper. The biggest additions are the **web interface**, the improved **memory management** and the **automation features**.
+ **Software has been rewritten from scratch**. Rotation is now handled by the AccelStepper
+library which allows faster speeds and controlled acceleration/deceleration of the stepper. The biggest additions are the **web interface**, the improved **memory management**, and the **automation features**.
 
 The entire project can be **emulated online** using [Wokwi](https://wokwi.com/projects/423139990419467265). However, note that the free Wokwi version does not support the web interface, nor the automation features.
 
@@ -60,20 +66,20 @@ Below is a screenshot of the web interface:
 ![Web Interface](https://github.com/adecarolis/k1fm-qro-loop-controller/raw/main/images/web-interface.png)
 
 ## Configuration
+When powered on, the controller will start in Access Point mode. Connect to the *K1FM Loop Controller* Wi-Fi network and navigate to **192.168.4.1** in your browser to access the control interface. From there, you can operate the antenna directly. Additionally, you can configure the controller to connect to your home Wi-Fi and set up the rigctld server parameters, enabling the automation features.  
 
-In order to connect to use the Web interface you will need to modify the [remote.h](https://github.com/adecarolis/k1fm-qro-loop-controller/blob/main/src/remote.h) file adding the SSID and password of your WiFi network. This is sub-optimal, and will be improved in the future.
-Automation features require the use of a rigctld server connected to your radio. To use them, you will need to add the IP address and port of your rigctld server in the [automation.h](https://github.com/adecarolis/k1fm-qro-loop-controller/blob/main/src/automation.h) file.
+Once the Wi-Fi parameters are configured, the controller will automatically connect to your home Wi-Fi network on subsequent power-ups, bypassing Access Point mode.
 
-> [!CAUTION]
-> You must set your capacitor's endstop setting, which you can find under *Menu -> Settings -> Set Endstop*. This is very important since accidentally rotating the shaft past either endstops could irreversibly damage your vacuum capacitor. In a system without endstop switching (such as this) that is is the main concern.
+### Endstop Configuration
 
-Finally, capacitance is currently calculated for a **Comet CVBA-500BC** capacitor. You can modify the code to support other capacitors if you want to. I will try to parametrize this function in the future.
+You must set your capacitor's endstop setting using the LCD menu or the web interface. This is very important since accidentally rotating the shaft past either endstop could irreversibly damage your vacuum capacitor.
 
 ## Planned Improvements
 
 - ~~automatic memory selection~~ DONE
 - ~~automatic antenna tuning~~ DONE
-- OTA configuration management (wifi / rigctld)
+- ~~dynamic endstop configuration~~ DONE
+- ~~OTA configuration management (WiFi / rigctld)~~ DONE
 - Generalize capacitance calculation to support other capacitors
 
 ## Disclaimer  

@@ -1,6 +1,5 @@
 #include "memories.h"
 
-Preferences preferences;
 StepData memoryArray[MEMORY_MAX_SIZE];
 u_int16_t previewMemoryIndex = 0;
 u_int16_t currentMemoryIndex = 0;
