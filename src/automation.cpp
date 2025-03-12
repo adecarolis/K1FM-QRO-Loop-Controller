@@ -438,7 +438,7 @@ float findMinimumSWRByRigctld(bool measureOnly) {
     #endif
   }
 
-  if (setModeByRigctld("FM", 0)) {
+  if (setModeByRigctld("FM", 3000)) {
     #ifdef DEBUG
     Serial.println("FM SET");
     #endif

@@ -131,13 +131,8 @@ MENU_SCREEN(mainScreen, mainItems,
       settingFrequency = true;
       menuVisible = false;
       menu.hide();
-      if (rigctldActive) {
-        u_int32_t frequency = getFrequencyByRigctld();
-        if (frequency != 0) {
-          currentFrequency = frequency;
-        }
-      }
       r.setUpperBound(UINT16_MAX);
+      r.resetPosition(currentFrequency);
       printFrequency(currentFrequency);
     }),
     ITEM_COMMAND("Delete Memory", []() {

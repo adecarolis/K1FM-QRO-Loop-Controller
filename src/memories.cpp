@@ -272,6 +272,7 @@ void deleteMemory() {
         memoryDown();
         // avoid movement triggered by memory_loop()
         currentMemoryIndex = previewMemoryIndex;
+        refreshTuningScreen();
     }
 }
 

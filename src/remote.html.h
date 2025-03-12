@@ -177,6 +177,49 @@ const char* htmlContent = R"rawliteral(
         .memory-select .btn.selected {
           background: #e53935 !important;
         }
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgb(0,0,0);
+          background-color: rgba(0,0,0,0.4);
+          padding-top: 60px;
+        }
+        .modal-content {
+          background-color: #fefefe;
+          margin: 5% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%;
+          max-width: 600px;
+          color: #000;
+        }
+        .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+          color: black;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        .modal-title {
+          font-size: 1.5em;
+          margin-bottom: 20px;
+        }
+        .modal-buttons {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 20px;
+        }
       </style>
       <script>
         let sortAscending = true;
@@ -396,21 +439,42 @@ const char* htmlContent = R"rawliteral(
         function saveMemory() {
           const currentFrequency = document.getElementById("currentFrequency").textContent;
           const currentSteps = document.getElementById("currentSteps").textContent;
-          const frequency = prompt("Enter frequency in kHz:", currentFrequency);
-          if (frequency === null || frequency.trim() === "") return;
-          const steps = prompt("Enter steps:", currentSteps);
-          if (steps === null || steps.trim() === "" || isNaN(steps)) {
-            alert("Invalid steps value. Please enter a valid number.");
+
+          const modal = document.getElementById("modal");
+          const modalTitle = document.getElementById("modalTitle");
+          const modalContent = document.getElementById("modalContent");
+          const modalButtons = document.getElementById("modalButtons");
+
+          modalTitle.textContent = "Enter frequency and steps to be saved";
+          modalContent.innerHTML = `
+            <label for="frequencyInput">Frequency (kHz):</label>
+            <input type="text" id="frequencyInput" value="${currentFrequency}">
+            <label for="stepsInput">Steps:</label>
+            <input type="text" id="stepsInput" value="${currentSteps}">
+          `;
+          modalButtons.innerHTML = `
+            <button class="btn" onclick="confirmSaveMemory()">SAVE</button>
+            <button class="btn" onclick="document.getElementById('modal').style.display='none'">CANCEL</button>
+          `;
+          modal.style.display = "block";
+        }
+
+        function confirmSaveMemory() {
+          const frequency = document.getElementById("frequencyInput").value;
+          const steps = document.getElementById("stepsInput").value;
+          if (frequency.trim() === "" || steps.trim() === "" || isNaN(steps)) {
+            alert("Invalid input. Please enter valid frequency and steps.");
             return;
           }
-          var xhttp = new XMLHttpRequest();
-          xhttp.onreadystatechange = function() {
+          var saveRequest = new XMLHttpRequest();
+          saveRequest.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
               loadMemories();
+              document.getElementById("modal").style.display = "none";
             }
           };
-          xhttp.open("GET", "/save/" + frequency + "/" + steps, true);
-          xhttp.send();
+          saveRequest.open("GET", "/save/" + frequency + "/" + steps, true);
+          saveRequest.send();
         }
 
         function deleteMemory() {
@@ -422,26 +486,52 @@ const char* htmlContent = R"rawliteral(
                 alert("No memories to delete.");
                 return;
               }
-              const frequencyList = memories.map((memory, index) => `${memory.khz} kHz (Index: ${index})`).join("\n");
-              const selectedIndex = prompt(`Select a memory to delete by entering its index:\n\n${frequencyList}`);
-              if (selectedIndex === null || selectedIndex.trim() === "") return;
-              const index = parseInt(selectedIndex);
-              if (isNaN(index) || index < 0 || index >= memories.length) {
-                alert("Invalid index. Please try again.");
-                return;
-              }
-              var deleteRequest = new XMLHttpRequest();
-              deleteRequest.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                  loadMemories();
-                }
-              };
-              deleteRequest.open("GET", "/delete/" + index, true);
-              deleteRequest.send();
+              const modal = document.getElementById("modal");
+              const modalTitle = document.getElementById("modalTitle");
+              const modalContent = document.getElementById("modalContent");
+              const modalButtons = document.getElementById("modalButtons");
+
+              modalTitle.textContent = "Select the memory to be deleted";
+              modalContent.innerHTML = '<select id="memorySelect"></select>';
+              const memorySelect = document.getElementById("memorySelect");
+              memorySelect.innerHTML = "";
+              memories.forEach((memory, index) => {
+                const option = document.createElement("option");
+                option.value = index;
+                option.textContent = `${memory.khz} kHz`;
+                memorySelect.appendChild(option);
+              });
+
+              modalButtons.innerHTML = `
+                <button class="btn" onclick="confirmDeleteMemory()">DELETE</button>
+                <button class="btn" onclick="document.getElementById('modal').style.display='none'">CANCEL</button>
+              `;
+              modal.style.display = "block";
             }
           };
           xhttp.open("GET", "/memories", true);
           xhttp.send();
+        }
+
+        function confirmDeleteMemory() {
+          const memorySelect = document.getElementById("memorySelect");
+          const index = memorySelect.value;
+          var deleteRequest = new XMLHttpRequest();
+          deleteRequest.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              loadMemories();
+              document.getElementById("modal").style.display = "none";
+            }
+          };
+          deleteRequest.open("GET", "/delete/" + index, true);
+          deleteRequest.send();
+        }
+
+        window.onclick = function(event) {
+          const modal = document.getElementById("modal");
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
         }
 
         function tuneAntenna() {
@@ -659,6 +749,14 @@ const char* htmlContent = R"rawliteral(
         <!-- Memory Selection -->
         <div class="section memory-select" id="memoryContainer">
           <!-- Memory buttons dynamically inserted here -->
+        </div>
+      </div>
+      <div id="modal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="document.getElementById('modal').style.display='none'">&times;</span>
+          <div id="modalTitle" class="modal-title"></div>
+          <div id="modalContent"></div>
+          <div id="modalButtons" class="modal-buttons"></div>
         </div>
       </div>
     </body>
